@@ -1,5 +1,10 @@
-#main page.
+#*****************
+#   main page.
+#   main.py
+#*****************
+
 #this serves as the main loop and seperately calling functions
+#this is a requirement of assignment
 
 import tkinter as tk
 from GUI import HugFaceGui
