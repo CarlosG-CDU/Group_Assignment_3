@@ -7,6 +7,7 @@
 
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 class HugFaceGui:
     def __init__(self, root):
@@ -54,7 +55,8 @@ class HugFaceGui:
         self.output_label.config(text = "TODO OOP explinations")
 
     def creators(self):
-        self.output_label.config(text = "Made by Carlos Galli, Cody Old and Lauren Whitford S2 - 2025")
+        #self.output_label.config(text = "Made by Carlos Galli, Cody Old and Lauren Whitford S2 - 2025")
+        messagebox.showinfo("Creators", "Made by Carlos Galli, Cody Old and Lauren Whitford S2 - 2025")
         
 
    
