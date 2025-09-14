@@ -8,6 +8,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import AI_Stuff
 
 class HugFaceGui:
     def __init__(self, root):
@@ -22,8 +23,8 @@ class HugFaceGui:
     def setup_layout(self):   
         
         ###Drop down menu / text box for input
-        self.input_type = ttk.Combobox(self._root, values = ["Text select 1", "Text Selct2"], state = "readonly")   # TODO need to rename the text menus
-        self.input_type.set("Text")
+        self.input_type = ttk.Combobox(self._root, values = ["Sentiment Model", "Text Selct2"], state = "readonly")   # TODO need to rename the text menus
+        self.input_type.set("Select Model")
         self.input_type.grid(row = 0, column = 0, padx = 5, pady = 5)
 
         ###Text input
@@ -46,7 +47,18 @@ class HugFaceGui:
         
 
     def run_model(self):
-        self.output_label.config(text = "TODO model")
+        #self.output_label.config(text = "TODO model")
+        user_input = self.input_text.get("1.0", tk.END).strip()
+        print("User enterd: ", user_input)  #remove later
+
+        print("Send data to AI_Stuff model")    #remove later
+        try:
+            result = AI_Stuff.analyse_sentiment(user_input)
+            print("Result from model = :", result)  #remoev later
+            self.output_label.config(text = "Sentiment: " + result)
+        except Exception as e:
+            self.output_label.config(text=f"Somethign is worng: {str(e)}")
+            print(f"Error in run_model: {str(e)}")  # A cool way to log error to console
 
     def show_model_info(self):
         self.output_label.config(text = "TODO model info")
