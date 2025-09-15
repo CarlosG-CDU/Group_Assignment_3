@@ -23,7 +23,7 @@ class HugFaceGui:
     def setup_layout(self):   
         
         ###Drop down menu / text box for input
-        self.input_type = ttk.Combobox(self._root, values = ["Sentiment Model", "Text Selct2"], state = "readonly")   # TODO need to rename the text menus
+        self.input_type = ttk.Combobox(self._root, values = ["Sentiment Model", "find_another_model"], state = "readonly")   # TODO need to rename the text menus
         self.input_type.set("Select Model")
         self.input_type.grid(row = 0, column = 0, padx = 5, pady = 5)
 
@@ -50,18 +50,33 @@ class HugFaceGui:
         #self.output_label.config(text = "TODO model")
         user_input = self.input_text.get("1.0", tk.END).strip()
         print("User enterd: ", user_input)  #remove later
+        selected_model = self.input_type.get()
 
-        print("Send data to AI_Stuff model")    #remove later
+        if selected_model == "Selected Model":  #check if a model has been selected
+            self.output_label.config(text = "Please select a model from drop menu")
+            return
+        
+        print(f"Selected model: {selected_model}") #debug
+
+        print("Send data to AI_Stuff model")    #debug remove later
         try:
-            result = AI_Stuff.analyse_sentiment(user_input)
-            print("Result from model = :", result)  #remoev later
-            self.output_label.config(text = "Sentiment: " + result)
+            if selected_model == "Sentiment Model":
+                result = AI_Stuff.analyse_sentiment(user_input)
+                print("Result from model = :", result)  #debug remoev later
+                self.output_label.config(text = "Sentiment: " + result)
+                
+                
+            elif selected_model == "find_another_model":
+                print("Find another model")
+                
+            else:
+                self.output_label.config(text = "Wrong model selected")     #should never get here but added just in case
         except Exception as e:
             self.output_label.config(text=f"Somethign is worng: {str(e)}")
-            print(f"Error in run_model: {str(e)}")  # A cool way to log error to console
+            print(f"Error in run_model: {str(e)}")  # debug. show whats hanging the code
 
     def show_model_info(self):
-        self.output_label.config(text = "TODO model info")
+        self.output_label.config(text = "The sentiment model will check any sentence you input into the text box and give an opinion if its Positive or Negative")
 
     def show_oop_explinations(self):
         self.output_label.config(text = "TODO OOP explinations")

@@ -1,14 +1,16 @@
+
+#****************
+#Sentiment Model
+#*************
+
 #https://huggingface.co/distilbert/distilbert-base-uncased-finetuned-sst-2-english
 
-#example AI sentiment. Got this running but not linked to GUI.py
-
+#modified example AI sentiment. Lined with GUI
 import torch
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 
 tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")
 model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")
-
-
 
 #inputs = tokenizer("Hello, my dog is cute", return_tensors="pt")
 #with torch.no_grad():
