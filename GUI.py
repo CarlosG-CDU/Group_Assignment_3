@@ -24,7 +24,7 @@ class HugFaceGui:
         
         ###Drop down menu / text box for input
         self.input_type = ttk.Combobox(self._root, values = ["Sentiment Model", "find_another_model"], state = "readonly")   # TODO need to rename the text menus
-        self.input_type.set("Select Model")
+        self.input_type.set("Select Model Here")
         self.input_type.grid(row = 0, column = 0, padx = 5, pady = 5)
 
         ###Text input
@@ -46,37 +46,44 @@ class HugFaceGui:
         tk.Button(self._root, text = "Created by", command = self.creators).grid(row = 6, column = 0, padx = 5, pady = 5) 
         
 
-    def run_model(self):
+    def run_model(self):        #get the users input from the text box
         #self.output_label.config(text = "TODO model")
-        user_input = self.input_text.get("1.0", tk.END).strip()
-        print("User enterd: ", user_input)  #remove later
-        selected_model = self.input_type.get()
+        user_text = self.input_text.get("1.0", tk.END).strip()
+        print("User entered: ", user_text)  #remove later used to verify the input text
+        self.selected_model = self.input_type.get()
 
-        if selected_model == "Selected Model":  #check if a model has been selected
+        if self.selected_model == "Selected Model":  #check if a model has been selected
             self.output_label.config(text = "Please select a model from drop menu")
             return
         
-        print(f"Selected model: {selected_model}") #debug
+        print(f"Selected model: {self.selected_model}") #debug
 
         print("Send data to AI_Stuff model")    #debug remove later
         try:
-            if selected_model == "Sentiment Model":
-                result = AI_Stuff.analyse_sentiment(user_input)
+            if self.selected_model == "Sentiment Model":     #call Sentiment Model function
+                result = AI_Stuff.analyse_sentiment(user_text)
                 print("Result from model = :", result)  #debug remoev later
                 self.output_label.config(text = "Sentiment: " + result)
                 
                 
-            elif selected_model == "find_another_model":
-                print("Find another model")
+            elif self.selected_model == "find_another_model":        #find another model to call
+                print("Need to Find another model")
                 
-            else:
+            else:       #just incase we end up here unexpectedly
                 self.output_label.config(text = "Wrong model selected")     #should never get here but added just in case
-        except Exception as e:
-            self.output_label.config(text=f"Somethign is worng: {str(e)}")
-            print(f"Error in run_model: {str(e)}")  # debug. show whats hanging the code
+        except Exception as err:    #something is broken
+            self.output_label.config(text=f"Somethign is wrong: {str(e)}")
+            print(f"Error in run_model: {str(err)}")  # debug. show whats hanging the code
 
     def show_model_info(self):
-        self.output_label.config(text = "The sentiment model will check any sentence you input into the text box and give an opinion if its Positive or Negative")
+        #self.output_label.config(text = "The sentiment model will check any sentence you input into the text box and give an opinion if its Positive or Negative")
+        if self.selected_model == "Sentiment Model":
+            print("Sentiment Mode Selected")
+            self.output_label.config(text = "The sentiment model will check any sentence you input into the text box and give an opinion if its Positive or Negative")
+        else:
+            print("Another type Selected")
+            self.output_label.config(text = "Dont know what model to use yet")
+    
 
     def show_oop_explinations(self):
         self.output_label.config(text = "TODO OOP explinations")
