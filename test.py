@@ -47,7 +47,7 @@ def detect_toxicity(input_text):
     result = toxic_model(input_text)
     return f"{result[0]['label']} ({result[0]['score']:.2f})"
 '''
-
+'''
 # toxic_test.py
 
 from transformers import pipeline
@@ -72,7 +72,9 @@ if __name__ == "__main__":
         print("Result:", detect_toxicity(sentence))
         print("-" * 40)
 
+'''
 
+'''
 # emotion_test.py
 
 from transformers import pipeline
@@ -99,3 +101,73 @@ if __name__ == "__main__":
         print(f"Input: {sentence}")
         print("Result:", analyse_emotion(sentence))
         print("-" * 40)
+'''
+'''
+import torch
+from diffusers import DiffusionPipeline
+
+# Load the model without the NSFW safety checker
+model_id = "runwayml/stable-diffusion-v1-5"  # Or "distil-diffusion/2" for the lighter version
+pipe = DiffusionPipeline.from_pretrained(
+    model_id, 
+    torch_dtype=torch.float32,
+    safety_checker=None  # This disables the NSFW filter
+)
+pipe = pipe.to("cpu")  # Ensure CPU usage
+
+# Generate an image
+prompt = "A cute cartoon cat wearing a red hat, simple illustration"  # Your prompt
+image = pipe(
+    prompt, 
+    num_inference_steps=30,  # Low steps for speed (adjust if needed)
+    height=256, 
+    width=256,  # Low-res for CPU
+    generator=torch.Generator("cpu").manual_seed(42)  # Fixed seed for reproducibility (optional)
+).images[0]
+
+# Save the image
+image.save("output.png")
+print("Image saved as output.png")
+'''
+
+import torch
+from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
+
+# Load the model without the NSFW safety checker
+model_id = "runwayml/stable-diffusion-v1-5"  # Stick with this for now; switch to "distil-diffusion/2" if too slow
+pipe = DiffusionPipeline.from_pretrained(
+    model_id, 
+    torch_dtype=torch.float32,
+    safety_checker=None  # Disables NSFW filter
+)
+pipe = pipe.to("cpu")  # Ensure CPU usage
+
+# Switch to a better scheduler for coherent images with fewer steps
+pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+
+# Generate an image with improved settings
+#prompt = "A simple wooden house on a green hill, landscape, clear blue sky, daytime"  # More detailed for better results
+#prompt = "A cow standing on a green field, clear blue sky, daytime"
+#prompt = "A bee on a yellow flower, clear blue sky, daytime"
+#prompt = "A rainbow umbrella infront of a rain background"
+prompt = "One red lady bug on a green leaf background"
+
+image = pipe(prompt, num_inference_steps=25, height=256, width=256).images[0]
+'''
+negative_prompt = "blurry, noisy, abstract, deformed"  # Helps avoid messiness (optional but recommended)
+image = pipe(
+    prompt, 
+    negative_prompt=negative_prompt,
+    num_inference_steps=25,  # Increased for coherence (try 20 if too slow, 50 for max quality)
+    height=256, 
+    width=256,  # Low-res for CPU
+    guidance_scale=7.5,  # Standard value for prompt adherence
+    generator=torch.Generator("cpu").manual_seed(123)  # Different seed for variety; change to 42 or remove for random
+).images[0]
+'''
+# Save the image
+image.save("output.png")
+print("Image saved as output.png")
+print(f"Generated with prompt: '{prompt}' and {image.size} resolution.")
+
+

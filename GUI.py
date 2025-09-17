@@ -24,7 +24,7 @@ class HugFaceGui:
     def setup_layout(self):   
         
         ###Drop down menu / text box for input
-        self.input_type = ttk.Combobox(self._root, values = ["Sentiment Model", "find_another_model"], state = "readonly")   # TODO need to rename the text menus
+        self.input_type = ttk.Combobox(self._root, values = ["Sentiment Model", "Text to Image"], state = "readonly")   # TODO need to rename the text menus
         self.input_type.set("Select Model Here")
         self.input_type.grid(row = 0, column = 0, padx = 5, pady = 5)
         self.input_type.bind("<<ComboboxSelected>>", self.update_selected_model)
@@ -37,7 +37,7 @@ class HugFaceGui:
         tk.Button(self._root, text = "Run Model", command = self.run_model).grid(row = 2, column = 0, padx = 5, pady = 5) 
 
         ###Output text box
-        self.output_label = tk.Label(self._root, text = "Output stuff will be shonw here", wraplength = 400)
+        self.output_label = tk.Label(self._root, text = "Please be patient. Some models may take upto 5 minutes to work", wraplength = 400)
         self.output_label.grid(row = 3, column = 0, padx = 5, pady = 5)
 
         ###info and explinations button
@@ -64,6 +64,15 @@ class HugFaceGui:
         
         print(f"Selected model: {self.selected_model}") #debug
 
+        #self.output_label.config(text="Processing, please wait...")
+        # Reset the output label with model-specific processing message
+        if self.selected_model == "Sentiment Model":
+            self.output_label.config(text="Analyzing sentiment, please wait...")
+        elif self.selected_model == "Text to Image":
+            self.output_label.config(text="Generating image, please wait (up to 5 minutes)...")
+        self._root.update()
+
+
         print("Send data to AI_Stuff model")    #debug remove later
         try:
             if self.selected_model == "Sentiment Model":     #call Sentiment Model function
@@ -71,12 +80,16 @@ class HugFaceGui:
                 print("Result from model = :", result)  #debug remoev later
                 self.output_label.config(text=f"sentiment: {result}")
                 
-            elif self.selected_model == "find_another_model":        #find another model to call
-                print("Need to Find another model")
-                self.output_label.config(text="Model not yet implemented")
+            elif self.selected_model == "Text to Image":        #call text to image
+                #self.output_label.config(text = "please be patient. this can take up to 5 minutes")
+                result = AI_Stuff.text_to_image(user_text)
+                
+                self.output_label.config(text="Text to Image")
+                #self.output_label.config(text=f"savedTo: {result}")
+                self.output_label.config(text = f"Your Image saved as output.png")
                 
             else:       #just incase we end up here unexpectedly
-                self.output_label.config(text = "Wrong model selected")     #should never get here but added just in case
+                self.output_label.config(text = "Please select a model from drop menu")     # only will get here if no model selected
                 
         except Exception as err:    #something is broken
             self.output_label.config(text=f"Somethign is wrong: {str(err)}")
@@ -89,12 +102,12 @@ class HugFaceGui:
             self.output_label.config(text="Please select a model from the dropdown menu")
         
         elif self.selected_model == "Sentiment Model":
-            self.output_label.config(text="The sentiment model analyzes the input text and determines if it has a positive or negative sentiment.")
+            self.output_label.config(text="The sentiment model analyses the input text and determines if it has a positive or negative sentiment.")
             print("Sentiment Model selected")  # Debug
         
-        elif self.selected_model == "find_another_model":
-            self.output_label.config(text="This model is not yet implemented.")
-            print("Another model selected")  # Debug
+        elif self.selected_model == "Text to Image":
+            self.output_label.config(text="This model will provide a picture from the text provided by the end user. The more info that is provided the better the result. You can over do it though. An example instruction A red lady bug on a flower")
+            print("Text to Image")  # Debug
         
         else:
             self.output_label.config(text="Unknown model selected")
