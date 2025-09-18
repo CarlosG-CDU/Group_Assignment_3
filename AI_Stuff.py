@@ -12,11 +12,11 @@ from transformers import DistilBertTokenizer, DistilBertForSequenceClassificatio
 
 local_model_path = "./models/distilbert-base-uncased-finetuned-sst-2-english"
 
-tokenizer = DistilBertTokenizer.from_pretrained(local_model_path)
-model = DistilBertForSequenceClassification.from_pretrained(local_model_path)
+#tokenizer = DistilBertTokenizer.from_pretrained(local_model_path)
+#model = DistilBertForSequenceClassification.from_pretrained(local_model_path)
 #***************************************
-#tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")     #uncomment this line to use online
-#model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")     #uncomment this line to use online
+tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")     #uncomment this line to use online
+model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")     #uncomment this line to use online
 #***************************************
 #inputs = tokenizer("Hello, my dog is cute", return_tensors="pt")
 #with torch.no_grad():
