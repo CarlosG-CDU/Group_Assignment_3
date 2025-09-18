@@ -6,12 +6,18 @@
 #https://huggingface.co/distilbert/distilbert-base-uncased-finetuned-sst-2-english
 
 #modified example AI sentiment. Alined with GUI
+
 import torch
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 
-tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")
-model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")
+local_model_path = "./models/distilbert-base-uncased-finetuned-sst-2-english"
 
+tokenizer = DistilBertTokenizer.from_pretrained(local_model_path)
+model = DistilBertForSequenceClassification.from_pretrained(local_model_path)
+#***************************************
+#tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")     #uncomment this line to use online
+#model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")     #uncomment this line to use online
+#***************************************
 #inputs = tokenizer("Hello, my dog is cute", return_tensors="pt")
 #with torch.no_grad():
 #    logits = model(**inputs).logits

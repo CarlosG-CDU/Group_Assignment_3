@@ -9,20 +9,38 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import AI_Stuff
-from base_classes import GuiBase     #this improts the parent class from base_classes.py
+from base_classes import GuiBase, AiModelBase     #this improts the parent class from base_classes.py
 
 
-class HugFaceGui(GuiBase):   #HugFaceGui now inherits from both guibase
+class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both guibase
     def __init__(self, root):
 
         GuiBase.__init__(self, root)    #set up the GUI stuff
+        AiModelBase.__init__(self)      #init AI Model Base
         
-
-        self.selected_model = None
+        self.__root = root  #encapsulation, hiding the variable for safety
+        #self.selected_model = "No model"
+        ##self.__selected_model = self.model_name     #use the inherited model name
+        self.__selected_model = self.get_model_name()
         #self._root = root   # Save the root window in a variable internally   handled by base_classes  
         #self._root.title("Group 5 Assingment 3")        #title for the GUI box this is now hangled by base_classes.py
         self.setup_layout()
   
+    def get_root(self): #Get the Window
+        return self.__root
+    
+    def get_model(self):    #Get the selected model
+        return self.__selected_model
+    
+    def set_model(self, model): #set the selected model
+        self.__selected_model = model
+
+    def update_selected_model(self, event = None):
+        self.set_model(self.input_type.get())       # use setter
+        self.output_label.config(text = f"{self.get_model()}")
+        print(f"Selected model: {self.get_model()}")    #use getter
+
+
 #    def setup_layout(self):
 #        label = tk.Label(self._root, text = "Welcome to Assignment 3")
 #        label.pack(padx = 10, pady = 10)
@@ -122,7 +140,8 @@ class HugFaceGui(GuiBase):   #HugFaceGui now inherits from both guibase
     
 
     def show_oop_explinations(self):
-        explinations = """Multiple Inheritance: HugFaceGui uses GuiBase for window setup"""
+        explinations = """Multiple Inheritance: HugFaceGui uses GuiBase for window setup
+                          Encapsulation: is used by making self.__root and self.__selected model private with meathods get_model and set_model for safety"""
         #self.output_label.config(text = "explinations", wraplength = 400)
         messagebox.showinfo("OOP Explanations", message=explinations, parent=self.window)
 
