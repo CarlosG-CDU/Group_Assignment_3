@@ -1,13 +1,9 @@
-#GUI page to handle UI -- Carlos
-#   GUI.py
-#*****************
 
-
-
+#created a copy of everything o I could play around
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import AI_Stuff
+import Ai_draft_loz
 
 class HugFaceGui:
     def __init__(self, root):
@@ -15,7 +11,7 @@ class HugFaceGui:
         self._root = root   # Save the root window in a variable internally     
         self._root.title("Group 5 Assingment 3")        #title for the GUI box
         self.setup_layout()
-        
+        root.geometry("600x600")
   
 #    def setup_layout(self):
 #        label = tk.Label(self._root, text = "Welcome to Assignment 3")
@@ -76,13 +72,13 @@ class HugFaceGui:
         print("Send data to AI_Stuff model")    #debug remove later
         try:
             if self.selected_model == "Sentiment Model":     #call Sentiment Model function
-                result = AI_Stuff.analyse_sentiment(user_text)
+                result = Ai_draft_loz.analyse_sentiment(user_text)
                 print("Result from model = :", result)  #debug remoev later
                 self.output_label.config(text=f"sentiment: {result}")
                 
             elif self.selected_model == "Text to Image":        #call text to image
                 #self.output_label.config(text = "please be patient. this can take up to 5 minutes")
-                result = AI_Stuff.text_to_image(user_text)
+                result = Ai_draft_loz.text_to_image(user_text)
                 
                 self.output_label.config(text="Text to Image")
                 #self.output_label.config(text=f"savedTo: {result}")
@@ -106,7 +102,7 @@ class HugFaceGui:
             print("Sentiment Model selected")  # Debug
         
         elif self.selected_model == "Text to Image":
-            self.output_label.config(text="This model will provide a picture from the text provided by the end user. The more info that is provided the better the result. You can over do it though. An example instruction A red lady bug on a flower")
+            self.output_label.config(text="This model will provide a picture from the text provided by the end user. Provide a brief description of the image you would like to see. For example: 'A red lady bug on a flower'")
             print("Text to Image")  # Debug
         
         else:
@@ -121,3 +117,6 @@ class HugFaceGui:
         #self.output_label.config(text = "Made by Carlos Galli, Cody Old and Lauren Whitford S2 - 2025")
         messagebox.showinfo("Creators", "Made by Carlos Galli, Cody Old and Lauren Whitford S2 - 2025")
         
+
+    
+
