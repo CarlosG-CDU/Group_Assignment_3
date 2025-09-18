@@ -9,12 +9,18 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import AI_Stuff
+from base_classes import GuiBase     #this improts the parent class from base_classes.py
 
-class HugFaceGui:
+
+class HugFaceGui(GuiBase):   #HugFaceGui now inherits from both guibase
     def __init__(self, root):
+
+        GuiBase.__init__(self, root)    #set up the GUI stuff
+        
+
         self.selected_model = None
-        self._root = root   # Save the root window in a variable internally     
-        self._root.title("Group 5 Assingment 3")        #title for the GUI box
+        #self._root = root   # Save the root window in a variable internally   handled by base_classes  
+        #self._root.title("Group 5 Assingment 3")        #title for the GUI box this is now hangled by base_classes.py
         self.setup_layout()
   
 #    def setup_layout(self):
@@ -24,31 +30,32 @@ class HugFaceGui:
     def setup_layout(self):   
         
         ###Drop down menu / text box for input
-        self.input_type = ttk.Combobox(self._root, values = ["Sentiment Model", "Text to Image"], state = "readonly")   # TODO need to rename the text menus
+        self.input_type = ttk.Combobox(self.window, values = ["Sentiment Model", "Text to Image"], state = "readonly")   # TODO need to rename the text menus
         self.input_type.set("Select Model Here")
         self.input_type.grid(row = 0, column = 0, padx = 5, pady = 5)
         self.input_type.bind("<<ComboboxSelected>>", self.update_selected_model)
 
         ###Text input
-        self.input_text = tk.Text(self._root, height = 5, width = 50)
+        self.input_text = tk.Text(self.window, height = 5, width = 50)
         self.input_text.grid(row = 1, column = 0, padx = 5, pady = 5 )
 
         ###Run / go button
-        tk.Button(self._root, text = "Run Model", command = self.run_model).grid(row = 2, column = 0, padx = 5, pady = 5) 
+        tk.Button(self.window, text = "Run Model", command = self.run_model).grid(row = 2, column = 0, padx = 5, pady = 5) 
 
         ###Output text box
-        self.output_label = tk.Label(self._root, text = "Please be patient. Some models may take upto 5 minutes to work", wraplength = 400)
+        self.output_label = tk.Label(self.window, text = "Please select a model from the dropdown menu", wraplength = 400)
         self.output_label.grid(row = 3, column = 0, padx = 5, pady = 5)
 
         ###info and explinations button
-        tk.Button(self._root, text = "Model Info", command = self.show_model_info).grid(row = 4, column = 0, padx = 5, pady = 5) 
-        tk.Button(self._root, text = "OOP Explinations", command = self.show_oop_explinations).grid(row = 5, column = 0, padx = 5, pady =5)
+        tk.Button(self.window, text = "Model Info", command = self.show_model_info).grid(row = 4, column = 0, padx = 5, pady = 5) 
+        tk.Button(self.window, text = "OOP Explinations", command = self.show_oop_explinations).grid(row = 5, column = 0, padx = 5, pady =5)
 
         ###made by button
-        tk.Button(self._root, text = "Created by", command = self.creators).grid(row = 6, column = 0, padx = 5, pady = 5) 
+        tk.Button(self.window, text = "Created by", command = self.creators).grid(row = 6, column = 0, padx = 5, pady = 5) 
 
     def update_selected_model(self, event=None):    #update the slected modle here
         self.selected_model = self.input_type.get()
+        self.output_label.config(text=f"{self.selected_model}")
         print(f"Selected model updated: {self.selected_model}")  # Debug to confirm selection
 
 
@@ -70,7 +77,7 @@ class HugFaceGui:
             self.output_label.config(text="Analyzing sentiment, please wait...")
         elif self.selected_model == "Text to Image":
             self.output_label.config(text="Generating image, please wait (up to 5 minutes)...")
-        self._root.update()
+        self.window.update()
 
 
         print("Send data to AI_Stuff model")    #debug remove later
@@ -115,7 +122,10 @@ class HugFaceGui:
     
 
     def show_oop_explinations(self):
-        self.output_label.config(text = "TODO OOP explinations")
+        explinations = """Multiple Inheritance: HugFaceGui uses GuiBase for window setup"""
+        #self.output_label.config(text = "explinations", wraplength = 400)
+        messagebox.showinfo("OOP Explanations", message=explinations, parent=self.window)
+
 
     def creators(self):
         #self.output_label.config(text = "Made by Carlos Galli, Cody Old and Lauren Whitford S2 - 2025")
