@@ -3,6 +3,7 @@
 #Multiple Inheritance
 #HugFaceGui, function from GUI.py uses GuiBase for window setup
 #abandoned trying to have the messages come from here. 
+#*****************
 
 import tkinter as tk
 
