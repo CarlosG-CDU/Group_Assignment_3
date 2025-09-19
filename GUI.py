@@ -4,7 +4,7 @@
 #*****************
 
 
-
+from AI_Stuff import SentimentModel, TextToImageModel
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -21,11 +21,15 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         self.__root = root  #encapsulation, hiding the variable for safety
         #self.selected_model = "No model"
         ##self.__selected_model = self.model_name     #use the inherited model name
-        self.__selected_model = self.get_model_name()
+        self.__selected_model = None
+        self.models = {
+            "Sentiment Model": SentimentModel(),
+            "Text to Image": TextToImageModel()
+        }
         #self._root = root   # Save the root window in a variable internally   handled by base_classes  
         #self._root.title("Group 5 Assingment 3")        #title for the GUI box this is now hangled by base_classes.py
         self.setup_layout()
-  
+
     def get_root(self): #Get the Window
         return self.__root
     
@@ -35,10 +39,18 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
     def set_model(self, model): #set the selected model
         self.__selected_model = model
 
-    def update_selected_model(self, event = None):
-        self.set_model(self.input_type.get())       # use setter
-        self.output_label.config(text = f"{self.get_model()}")
-        print(f"Selected model: {self.get_model()}")    #use getter
+    def update_selected_model(self, event=None):
+        choice = self.input_type.get()
+        self.__selected_model = self.models.get(choice, None)
+
+        if self.__selected_model:
+             
+             choice = self.input_type.get()
+             self.output_label.config(text=f"{choice} selected")
+             print(f"Selected model updated: {choice}")# Debug 
+        else:
+            self.output_label.config(text="Please select a model from the dropdown menu")
+            print("No valid model selected")
 
 
 #    def setup_layout(self):
@@ -71,54 +83,24 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         ###made by button
         tk.Button(self.window, text = "Created by", command = self.creators).grid(row = 6, column = 0, padx = 5, pady = 5) 
 
-    def update_selected_model(self, event=None):    #update the slected modle here
-        self.selected_model = self.input_type.get()
-        self.output_label.config(text=f"{self.selected_model}")
-        print(f"Selected model updated: {self.selected_model}")  # Debug to confirm selection
-
-
-    def run_model(self):        #get the users input from the text box
-        #self.output_label.config(text = "TODO model")
+    def run_model(self):
         user_text = self.input_text.get("1.0", tk.END).strip()
-        print("User entered: ", user_text)  #remove later used to verify the input text
-        self.selected_model = self.input_type.get()
-
-        if self.selected_model == "Selected Model":  #check if a model has been selected
-            self.output_label.config(text = "Please select a model from drop menu")
+        if not self.__selected_model:
+            self.output_label.config(text="Please select a model from the dropdown menu")
             return
         
-        print(f"Selected model: {self.selected_model}") #debug
+        choice = self.input_type.get()
+        print(f"User Entered: {user_text}")     #debug to remove used to be user_text
+        print(f"Selected model: {choice}") 
 
-        #self.output_label.config(text="Processing, please wait...")
-        # Reset the output label with model-specific processing message
-        if self.selected_model == "Sentiment Model":
-            self.output_label.config(text="Analyzing sentiment, please wait...")
-        elif self.selected_model == "Text to Image":
-            self.output_label.config(text="Generating image, please wait (up to 5 minutes)...")
-        self.window.update()
-
-
-        print("Send data to AI_Stuff model")    #debug remove later
         try:
-            if self.selected_model == "Sentiment Model":     #call Sentiment Model function
-                result = AI_Stuff.analyse_sentiment(user_text)
-                print("Result from model = :", result)  #debug remoev later
-                self.output_label.config(text=f"sentiment: {result}")
-                
-            elif self.selected_model == "Text to Image":        #call text to image
-                #self.output_label.config(text = "please be patient. this can take up to 5 minutes")
-                result = AI_Stuff.text_to_image(user_text)
-                
-                self.output_label.config(text="Text to Image")
-                #self.output_label.config(text=f"savedTo: {result}")
-                self.output_label.config(text = f"Your Image saved as output.png")
-                
-            else:       #just incase we end up here unexpectedly
-                self.output_label.config(text = "Please select a model from drop menu")     # only will get here if no model selected
-                
-        except Exception as err:    #something is broken
-            self.output_label.config(text=f"Somethign is wrong: {str(err)}")
-            print(f"Error in run_model: {str(err)}")  # debug. show whats hanging the code
+            result = self.__selected_model.run(user_text)
+            self.output_label.config(text=result)
+            print("Result from model: ", result)
+        except Exception as err:
+            self.output_label.config(text=f"Something went wrong: {str(err)}")
+            print(f"Error in run_model: {str(err)}")
+
 
     def show_model_info(self):      #display info about selected model
         self.selected_model = self.input_type.get() #show current selection
@@ -141,7 +123,13 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
 
     def show_oop_explinations(self):
         explinations = """Multiple Inheritance: HugFaceGui uses GuiBase for window setup
-                          Encapsulation: is used by making self.__root and self.__selected model private with meathods get_model and set_model for safety"""
+                          Encapsulation: is used by making self.__root and self.__selected model private with meathods get_model and set_model for safety
+                          Polymorphism: AiModelBase has a basic run() method that does nothing. 
+                    SentimentModel changes it to check if text is positive or negative using DistilBERT. 
+                    TextToImageModel changes it to make pictures with Stable Diffusion, saving them as "output.png". 
+                    HugFaceGui calls run() on the selected model, and it works differently without needing to know what model it is
+                                                   
+                          """
         #self.output_label.config(text = "explinations", wraplength = 400)
         messagebox.showinfo("OOP Explanations", message=explinations, parent=self.window)
 
