@@ -8,6 +8,7 @@
 #modified example AI sentiment. Alined with GUI
 
 import torch
+import time
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 
 local_model_path = "./models/distilbert-base-uncased-finetuned-sst-2-english"
@@ -36,7 +37,19 @@ def log_call(func):
         return result
     return wrapper
 
+# Decorator: time how long it takes to complete function
+
+def timeit(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs) 
+        end = time.time()
+        print("TIME:", func.__name__, "took", round(end - start, 2), "seconds")
+        return result
+    return wrapper
+
 @log_call
+@timeit
 def analyse_sentiment(input_text):
     print("Analysing this from AI_Stuff: ", input_text) #remove later
 
@@ -57,6 +70,8 @@ def analyse_sentiment(input_text):
 import torch
 from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
 
+@log_call
+@timeit
 def text_to_image(input_text):
     print("This is the text from GUI.py: ", input_text)
 
