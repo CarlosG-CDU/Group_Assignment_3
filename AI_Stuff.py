@@ -26,6 +26,17 @@ model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-unc
 #model.config.id2label[predicted_class_id]
 #print(model.config.id2label[predicted_class_id])
 
+# Decorator: log when a function is called
+
+def log_call(func):
+    def wrapper(*args, **kwargs):
+        print("LOG: running function ->", func.__name__)
+        result = func(*args, **kwargs)
+        print("LOG: finished function ->", func.__name__)
+        return result
+    return wrapper
+
+@log_call
 def analyse_sentiment(input_text):
     print("Analysing this from AI_Stuff: ", input_text) #remove later
 
