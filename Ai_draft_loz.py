@@ -76,6 +76,10 @@ def text_to_image(input_text):
     image = pipe(prompt, num_inference_steps=25, height=256, width=256).images[0]
     # Save the image
     image.save("output.png")
+    
+    #img = image.PhotoImage(image)
+    #image.configure(image=img)
+    
     print("Image saved as output.png")
     print(f"Generated with prompt: '{prompt}' and {image.size} resolution.")
     savedTo = f"{prompt}_{image.size}"  #string to be passed

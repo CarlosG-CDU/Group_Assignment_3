@@ -4,6 +4,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import Ai_draft_loz
+from PIL import Image, ImageTk
+import os
 
 class HugFaceGui:
     def __init__(self, root):
@@ -11,7 +13,7 @@ class HugFaceGui:
         self._root = root   # Save the root window in a variable internally     
         self._root.title("Group 5 Assingment 3")        #title for the GUI box
         self.setup_layout()
-        root.geometry("600x600")
+        root.geometry("1400x1000")
   
 #    def setup_layout(self):
 #        label = tk.Label(self._root, text = "Welcome to Assignment 3")
@@ -41,7 +43,12 @@ class HugFaceGui:
         tk.Button(self._root, text = "OOP Explinations", command = self.show_oop_explinations).grid(row = 5, column = 0, padx = 5, pady =5)
 
         ###made by button
-        tk.Button(self._root, text = "Created by", command = self.creators).grid(row = 6, column = 0, padx = 5, pady = 5) 
+        tk.Button(self._root, text = "Created by", command = self.creators).grid(row = 6, column = 0, padx = 5, pady = 5)
+        
+        self.image_label = tk.Label(self._root)                #pack image as label using pillow module
+        self.image_label.grid(row=1, column=1, padx=5, pady=5)  
+
+
 
     def update_selected_model(self, event=None):    #update the slected modle here
         self.selected_model = self.input_type.get()
@@ -68,7 +75,7 @@ class HugFaceGui:
             self.output_label.config(text="Generating image, please wait (up to 5 minutes)...")
         self._root.update()
 
-
+         
         print("Send data to AI_Stuff model")    #debug remove later
         try:
             if self.selected_model == "Sentiment Model":     #call Sentiment Model function
@@ -80,16 +87,45 @@ class HugFaceGui:
                 #self.output_label.config(text = "please be patient. this can take up to 5 minutes")
                 result = Ai_draft_loz.text_to_image(user_text)
                 
-                self.output_label.config(text="Text to Image")
+            
                 #self.output_label.config(text=f"savedTo: {result}")
-                self.output_label.config(text = f"Your Image saved as output.png")
-                
+                self.output_label.config(text ="Your Image was generated and saved") 
+
+
+                 ##https://www.activestate.com/resources/quick-reads/how-to-add-images-in-tkinter/
+    
+                 #ensure pillow is installed "python -m pip install pillow"
+
+            
+
+                # Check if image was saved
+                if not os.path.exists("output.png"):
+                     self.output_label.config(text="Image file not found: output.png")
+                     print("Image file output.png not found!")
+                     return
+                try:
+
+                     image = Image.open("output.png")    #opens the image
+                     image = image.resize((256, 256), resample=Image.Resampling.LANCZOS)        #resize
+                     photo = ImageTk.PhotoImage(image)
+                     self.image_label.configure(image=photo)
+                     self.image_label.image = photo
+
+                except Exception as e:
+                 self.output_label.config(text=f"Failed to load image: {e}")
+                 print("Image load error:", e)
+
             else:       #just incase we end up here unexpectedly
                 self.output_label.config(text = "Please select a model from drop menu")     # only will get here if no model selected
                 
+        
+
         except Exception as err:    #something is broken
             self.output_label.config(text=f"Somethign is wrong: {str(err)}")
             print(f"Error in run_model: {str(err)}")  # debug. show whats hanging the code
+
+       
+
 
     def show_model_info(self):      #display info about selected model
         self.selected_model = self.input_type.get() #show current selection
@@ -116,7 +152,14 @@ class HugFaceGui:
     def creators(self):
         #self.output_label.config(text = "Made by Carlos Galli, Cody Old and Lauren Whitford S2 - 2025")
         messagebox.showinfo("Creators", "Made by Carlos Galli, Cody Old and Lauren Whitford S2 - 2025")
+
         
+     
+    
 
     
+
+
+
+
 
