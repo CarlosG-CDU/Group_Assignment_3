@@ -28,7 +28,7 @@ model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-unc
 #print(model.config.id2label[predicted_class_id])
 
 # Decorator: log when a function is called
-
+# Reference:(https://www.geeksforgeeks.org/python/timing-functions-with-decorators-python/)
 def log_call(func):
     def wrapper(*args, **kwargs):
         print("LOG: running function ->", func.__name__)
@@ -41,11 +41,15 @@ def log_call(func):
 
 def timeit(func):
     def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs) 
-        end = time.time()
-        print("TIME:", func.__name__, "took", round(end - start, 2), "seconds")
-        return result
+        start = time.perf_counter() # swapped out instead of time.time()
+        try:
+            return func(*args, **kwargs)
+        finally:
+            dur = time.perf_counter() - start
+            msg = f"TIME: {func.__name__} took {dur:.2f} seconds"
+            print(msg, flush=true) #force it to print
+            with open("debug.log", "a", encoding="utf-8") as f:
+                f.write(msg + "\n")
     return wrapper
 
 @log_call
