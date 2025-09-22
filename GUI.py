@@ -3,7 +3,7 @@
 #   GUI.py
 #*****************
 
-
+#GUI CHANGE$$$$$$$$$$$$$$$$$$$$
 from AI_Stuff import SentimentModel, TextToImageModel
 import tkinter as tk
 from tkinter import ttk
@@ -94,12 +94,24 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         print(f"Selected model: {choice}") 
 
         try:
+            if choice == "Text to Image":
+                self.output_label.config(text="Generating Image. Please be patient, this can take up to 5 minutes.") # Display the "Generating Image" message
+                self.window.update()  # Force GUI update to show the message
             result = self.__selected_model.run(user_text)
             self.output_label.config(text=result)
             print("Result from model: ", result)
         except Exception as err:
             self.output_label.config(text=f"Something went wrong: {str(err)}")
             print(f"Error in run_model: {str(err)}")
+
+
+        #try:
+            #result = self.__selected_model.run(user_text)
+            #self.output_label.config(text=result)
+            #print("Result from model: ", result)
+        #except Exception as err:
+            #self.output_label.config(text=f"Something went wrong: {str(err)}")
+            #print(f"Error in run_model: {str(err)}")
 
 
     def show_model_info(self):      #display info about selected model
