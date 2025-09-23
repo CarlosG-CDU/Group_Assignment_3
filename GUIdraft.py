@@ -1,7 +1,7 @@
 
 #created a copy of everything o I could play around
 import tkinter as tk
-from tkinter import ttk
+from tkinter import IntVar, ttk
 from tkinter import messagebox
 import Ai_draft_loz
 from PIL import Image, ImageTk
@@ -22,7 +22,7 @@ class HugFaceGui:
     def setup_layout(self):   
         
         ###Drop down menu / text box for input
-        self.input_type = ttk.Combobox(self._root, values = ["Sentiment Model", "Text to Image"], state = "readonly")   # TODO need to rename the text menus
+        self.input_type = ttk.Combobox(self._root, values = ["Sentiment Model", "Text to Image"], state = "readonly", width=10, height=5)   # TODO need to rename the text menus
         self.input_type.set("Select Model Here")
         self.input_type.grid(row = 0, column = 0, padx = 5, pady = 5)
         self.input_type.bind("<<ComboboxSelected>>", self.update_selected_model)
@@ -45,8 +45,41 @@ class HugFaceGui:
         ###made by button
         tk.Button(self._root, text = "Created by", command = self.creators).grid(row = 6, column = 0, padx = 5, pady = 5)
         
-        self.image_label = tk.Label(self._root)                #pack image as label using pillow module
-        self.image_label.grid(row=1, column=1, padx=5, pady=5)  
+        #create frame for image
+        image_frame = tk.LabelFrame(self._root, text="Here is your picture", width=300, height=300)
+        image_frame.grid(row=3, column=3, padx=10, pady=10)
+
+        self.image_label = tk.Label(image_frame)                #pack image as label inside frame using pillow module
+        self.image_label.grid(row=5, column=1, padx=5, pady=5)  
+
+        #create radio buttons
+        r = tk.IntVar()  #define variable r
+        #r.get()
+
+        #radio_frame = tk.Frame(self._root)
+
+        def click_rb(value):   #https://www.geeksforgeeks.org/python/save-image-to-file-in-python-using-tkinter/
+           if value == 1:
+             self.open_image()
+           elif value == 2:
+               self.save_image()
+             
+
+        rb = tk.Radiobutton(self._root, text="Open Image", variable=r, value=1, command=lambda: click_rb(r.get()))   #.pack(row=3, column=2)  #radio button #command=lambda: click_rb(r.get())
+        rb2 = tk.Radiobutton(self._root, text="Save Image", variable=r, value=2, command=lambda: click_rb(r.get()))    #.pack(row=4, column=2)
+
+        rb.grid(row=2, column=2)
+        rb2.grid(row=3, column=2)          
+        
+        rbLabel = tk.Label(self._root, text=r.get())
+        rbLabel.grid(row=1, column=2)
+
+        
+
+        
+
+
+        
 
 
 
@@ -90,41 +123,51 @@ class HugFaceGui:
             
                 #self.output_label.config(text=f"savedTo: {result}")
                 self.output_label.config(text ="Your Image was generated and saved") 
+        
 
 
                  ##https://www.activestate.com/resources/quick-reads/how-to-add-images-in-tkinter/
     
                  #ensure pillow is installed "python -m pip install pillow"
-
-            
-
-                # Check if image was saved
-                if not os.path.exists("output.png"):
-                     self.output_label.config(text="Image file not found: output.png")
-                     print("Image file output.png not found!")
-                     return
-                try:
-
-                     image = Image.open("output.png")    #opens the image
-                     image = image.resize((256, 256), resample=Image.Resampling.LANCZOS)        #resize
-                     photo = ImageTk.PhotoImage(image)
-                     self.image_label.configure(image=photo)
-                     self.image_label.image = photo
-
-                except Exception as e:
-                 self.output_label.config(text=f"Failed to load image: {e}")
-                 print("Image load error:", e)
-
-            else:       #just incase we end up here unexpectedly
-                self.output_label.config(text = "Please select a model from drop menu")     # only will get here if no model selected
-                
-        
-
         except Exception as err:    #something is broken
             self.output_label.config(text=f"Somethign is wrong: {str(err)}")
             print(f"Error in run_model: {str(err)}")  # debug. show whats hanging the code
+            
 
-       
+    def open_image(self):
+        try:               # Check if image was saved
+                
+            if not os.path.exists("output.png"):
+                self.output_label.config(text="Image file not found: output.png")
+                print("Image file output.png not found!")
+                return
+            
+                    
+
+            image = Image.open("output.png")    #opens the image
+            image = image.resize((256, 256), resample=Image.Resampling.LANCZOS)        #resize
+            photo = ImageTk.PhotoImage(image)
+            self.image_label.configure(image=photo)
+            self.image_label.image = photo
+
+        except Exception as e:
+                self.output_label.config(text=f"Failed to load image: {e}")
+                print("Image load error:", e)
+
+        else:       #just incase we end up here unexpectedly
+            self.output_label.config(text = "Please select a model from drop menu")     # only will get here if no model selected
+                
+        
+
+         #Exception as err:    #something is broken
+            #self.output_label.config(text=f"Somethign is wrong: {str(err)}")
+            #print(f"Error in run_model: {str(err)}")  # debug. show whats hanging the code
+
+    def save_image(self):
+        if os.path.exists("output.png"):
+            new_name = "saved_output.png"
+            Image.open("output.png").save(new_name)
+
 
 
     def show_model_info(self):      #display info about selected model
