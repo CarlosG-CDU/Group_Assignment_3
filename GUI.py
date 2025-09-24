@@ -21,6 +21,7 @@ class HugFaceGui(GuiBase):   #HugFaceGui now inherits from both guibase
         #self._root = root   # Save the root window in a variable internally   handled by base_classes  
         #self._root.title("Group 5 Assingment 3")        #title for the GUI box this is now hangled by base_classes.py
         self.setup_layout()
+        root.geometry("1400x1000")
   
 #    def setup_layout(self):
 #        label = tk.Label(self._root, text = "Welcome to Assignment 3")
