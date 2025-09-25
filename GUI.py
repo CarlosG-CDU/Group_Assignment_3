@@ -128,6 +128,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
                     SentimentModel changes it to check if text is positive or negative using DistilBERT. 
                     TextToImageModel changes it to make pictures with Stable Diffusion, saving them as "output.png". 
                     HugFaceGui calls run() on the selected model, and it works differently without needing to know what model it is
+                    Multiple Decorators: In AI_Stuff.py, each run() method is decorated with @log_call and @timeit together. This means when run() is called, first it is logged (with a spinner), then the execution time is measured, before finally running the real function.
                                                    
                           """
         #self.output_label.config(text = "explinations", wraplength = 400)

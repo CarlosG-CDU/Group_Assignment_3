@@ -12,6 +12,7 @@ from base_classes import AiModelBase
 import torch
 import time
 import functools
+import sys, itertools, threading
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
 
@@ -22,16 +23,31 @@ from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
 tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")                  #uncomment this line to use online
 model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")       #uncomment this line to use online
 
-# Decorator: log when a function is called
+# Decorator: log with spinner while function is running
+# Reference: https://realpython.com/primer-on-python-decorators/    https://docs.python.org/3/library/itertools.html#itertools.cycle
 def log_call(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        print("LOG: running function ->", func.__name__)
-        result = func(*args, **kwargs)
-        print("LOG: finished function ->", func.__name__)
-        return result
+        stop_flag = {"stop": False}
+        spinner_cycle = itertools.cycle("|/-\\") #spinner characters
+
+        def _spin():
+            while not stop_flag["stop"]:
+                print("LOG: working... " + next(spinner_cycle))
+                time.sleep(0.3) 
+        t = threading.Thread(target=_spin, daemon=True)
+        t.start()
+        try:
+            result = func(*args, **kwargs)
+            return result
+        finally:
+            stop_flag["stop"] = True
+            t.join(timeout=0.5)
+            print(f"LOG: finished function -> {func.__name__}")
     return wrapper
 
+
+            
 # Decorator: time how long it takes to complete function
 # Reference:(https://www.geeksforgeeks.org/python/timing-functions-with-decorators-python/)
 def timeit(func):
