@@ -29,7 +29,7 @@ def log_call(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         stop_flag = {"stop": False}
-        spinner_cycle = itertools.cycle("|/-\\") #spinner characters
+        spinner_cycle = itertools.cycle("/-\\|") #spinner characters
 
         def _spin():
             while not stop_flag["stop"]:
