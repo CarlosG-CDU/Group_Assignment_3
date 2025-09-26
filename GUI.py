@@ -98,7 +98,15 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
                 self.output_label.config(text="Generating Image. Please be patient, this can take up to 5 minutes.") # Display the "Generating Image" message
                 self.window.update()  # Force GUI update to show the message
             result = self.__selected_model.run(user_text)
-            self.output_label.config(text=result)
+            #set text colour based on entiment
+            if result.lower() == "POSITIVE":
+                self.output_label.config(text = result, foreground = "green")       #happy print green
+            elif result.lower() == "NEGATIVE":
+                self.output_label.config(text=result, foreground="red")             #sad print red
+            else:
+                self.output_label.config(text=result, foreground="black")  # Default colour for other results
+
+            #self.output_label.config(text=result)
             print("Result from model: ", result)
         except Exception as err:
             self.output_label.config(text=f"Something went wrong: {str(err)}")
@@ -137,15 +145,14 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
             -SentimentModel changes it to check if text is positive or negative using DistilBERT. 
             -TextToImageModel changes it to make pictures with Stable Diffusion, saving them as "output.png". 
             -HugFaceGui calls run() on the selected model, and it works differently without needing to know what model it is
-            
+
         * Multiple Decorators: 
             -In AI_Stuff.py, each run() method is decorated with @log_call and @timeit together. 
             -This means when run() is called, first it is logged (with a spinner), then the execution time is measured, 
              before finally running the real function.
                                                    
                           """
-        
-        
+               
  
         #self.output_label.config(text = "explinations", wraplength = 400)
         messagebox.showinfo("OOP Explanations", message=explinations, parent=self.window)
