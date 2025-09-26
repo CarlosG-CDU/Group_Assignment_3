@@ -51,7 +51,14 @@ class HugFaceGui(GuiBase):   #HugFaceGui now inherits from both guibase
         tk.Button(self.window, text = "OOP Explinations", command = self.show_oop_explinations).grid(row = 5, column = 0, padx = 5, pady =5)
 
         ###made by button
-        tk.Button(self.window, text = "Created by", command = self.creators).grid(row = 6, column = 0, padx = 5, pady = 5) 
+        tk.Button(self.window, text = "Created by", command = self.creators).grid(row = 6, column = 0, padx = 5, pady = 5)
+
+        #create frame for image
+        image_frame = tk.LabelFrame(self.window, text="Here is your picture", width=300, height=300)
+        image_frame.grid(row=3, column=3, padx=10, pady=10)
+
+        self.image_label = tk.Label(image_frame)                #pack image as label inside frame using pillow module
+        self.image_label.grid(row=5, column=1, padx=5, pady=5)  
 
         #create radio buttons
         r = tk.IntVar()  #define variable r
@@ -72,7 +79,7 @@ class HugFaceGui(GuiBase):   #HugFaceGui now inherits from both guibase
         rb.grid(row=2, column=2)
         rb2.grid(row=3, column=2)          
         
-        rbLabel = tk.Label(self, text="Please make a selection")
+        rbLabel = tk.Label(self.window, text="Please make a selection")
         rbLabel.grid(row=1, column=2)
 
 
