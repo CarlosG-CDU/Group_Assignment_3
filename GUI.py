@@ -46,7 +46,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         if self.__selected_model:
              
              choice = self.input_type.get()
-             self.output_label.config(text=f"{choice} selected")
+             self.output_label.config(text=f"{choice} selected", foreground = "black")
              print(f"Selected model updated: {choice}")# Debug 
         else:
             self.output_label.config(text="Please select a model from the dropdown menu")
@@ -98,10 +98,11 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
                 self.output_label.config(text="Generating Image. Please be patient, this can take up to 5 minutes.") # Display the "Generating Image" message
                 self.window.update()  # Force GUI update to show the message
             result = self.__selected_model.run(user_text)
-            #set text colour based on entiment
-            if result.lower() == "POSITIVE":
+            #set text colour based on teh result of the sentiment model
+            print("This is the result: ", result)
+            if result == "Sentiment: POSITIVE":
                 self.output_label.config(text = result, foreground = "green")       #happy print green
-            elif result.lower() == "NEGATIVE":
+            elif result == "Sentiment: NEGATIVE":
                 self.output_label.config(text=result, foreground="red")             #sad print red
             else:
                 self.output_label.config(text=result, foreground="black")  # Default colour for other results
@@ -111,7 +112,6 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         except Exception as err:
             self.output_label.config(text=f"Something went wrong: {str(err)}")
             print(f"Error in run_model: {str(err)}")
-
 
     def show_model_info(self):      #display info about selected model
         self.selected_model = self.input_type.get() #show current selection
