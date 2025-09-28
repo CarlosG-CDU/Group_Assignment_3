@@ -80,7 +80,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
 
         ###Output text box
         self.output_label = tk.Label(Button_frame, text = "Please select a model from the dropdown menu", font=("Verdana", 10), wraplength = 400)
-        self.output_label.grid(row = 2, column = 0, padx = 5, pady = 5, sticky='w')
+        self.output_label.grid(row = 3, column = 0, padx = 5, pady = 5, sticky='w')
 
         ###info and explinations button
         tk.Button(Button_frame, text = "Model Info", command = self.show_model_info).grid(row = 4, column = 0, padx = 5, pady = 5, sticky='w') 
