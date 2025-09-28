@@ -9,7 +9,9 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import AI_Stuff
-from base_classes import GuiBase, AiModelBase     #this improts the parent class from base_classes.py
+from base_classes import GuiBase, AiModelBase         #this imports the parent class from base_classes.py
+from PIL import Image, ImageTk                        #this imports image module compatible with tkinter
+import os                              
 
 
 class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both guibase
@@ -59,7 +61,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
 
     def setup_layout(self):   
         
-        Button_frame = tk.LabelFrame(self.window, bg="pink", width=1200, height=1000)
+        Button_frame = tk.LabelFrame(self.window, bg="pink", width=1200, height=1000)    #use to call all buttons into frame for neat GUI display
         Button_frame.grid(row=1, column=0, padx=10, pady=10)
         
         ###Drop down menu / text box for input
