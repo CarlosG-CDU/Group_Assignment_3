@@ -10,7 +10,8 @@ from tkinter import ttk
 from tkinter import messagebox
 import AI_Stuff
 from base_classes import GuiBase, AiModelBase     #this improts the parent class from base_classes.py
-
+import threading
+import time
 
 class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both guibase
     def __init__(self, root):
@@ -29,6 +30,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         #self._root = root   # Save the root window in a variable internally   handled by base_classes  
         #self._root.title("Group 5 Assingment 3")        #title for the GUI box this is now hangled by base_classes.py
         self.setup_layout()
+        self.__is_running = False   #boolean flag for animation status
 
     def get_root(self): #Get the Window
         return self.__root
@@ -83,6 +85,29 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         ###made by button
         tk.Button(self.window, text = "Created by", command = self.creators).grid(row = 6, column = 0, padx = 5, pady = 5) 
 
+
+        #Spinner to show the prog hasnt crashed when running text to pic.
+    def __spin_progress(self):  #spin some slashes to show the prog hasnt hung
+        spinner = ['\\', '|', '/', '-']
+        i = 0
+        while self.__is_running:
+            self.output_label.config(text = f"Generating Image. Please be patient, thais can take up to 5 minutes. {spinner[i]}")
+            self.window.update()
+            i = (i + 1) % len(spinner)
+            time.sleep(0.2) #updates ever 0.2 secods
+
+    def _update_result(self, result):
+            
+            self.__is_running = False  # Ensure spinner stops
+            #set text colour based on teh result of the sentiment model
+            if result == "Sentiment: POSITIVE":
+                self.output_label.config(text=result, foreground="green")       #happy print green
+            elif result == "Sentiment: NEGATIVE":
+                self.output_label.config(text=result, foreground="red")         #sad print red
+            else:
+                self.output_label.config(text=result, foreground="black")       # Default colour for other results
+            print("Result from model: ", result)
+
     def run_model(self):
         user_text = self.input_text.get("1.0", tk.END).strip()
         if not self.__selected_model:
@@ -93,23 +118,35 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         print(f"User Entered: {user_text}")     #debug to remove used to be user_text
         print(f"Selected model: {choice}") 
 
+        def run_model_in_thread():  #run in another thread to stop gui from mucking this up
+            try:
+                print("Text to image model execute")
+                result = self.__selected_model.run(user_text)
+                print("This is the result: ", result)
+                self.window.after(0, lambda: self._update_result(result))       #upadte the GUI form here
+            except Exception as err:
+                print(f"Error in run_model: {str(err)}")
+                self.window.after(0, lambda: self._update_result(f"Something went wrong: {str(err)}"))
+            finally:
+                self.__is_running = False  # Stop the spinner
+
         try:
             if choice == "Text to Image":
-                self.output_label.config(text="Generating Image. Please be patient, this can take up to 5 minutes.") # Display the "Generating Image" message
-                self.window.update()  # Force GUI update to show the message
-            result = self.__selected_model.run(user_text)
-            #set text colour based on teh result of the sentiment model
-            print("This is the result: ", result)
-            if result == "Sentiment: POSITIVE":
-                self.output_label.config(text = result, foreground = "green")       #happy print green
-            elif result == "Sentiment: NEGATIVE":
-                self.output_label.config(text=result, foreground="red")             #sad print red
+                self.__is_running = True
+                #self.output_label.config(text="Generating Image. Please be patient, this can take up to 5 minutes.") # Display the "Generating Image" message
+                #self.window.update()  # Force GUI update to show the message
+                ##threading.Thread(target = self.__spin_progress, daemon = True).start()
+                threading.Thread(target=run_model_in_thread, daemon=True).start()
+                self.__spin_progress()  #run in main thread
             else:
-                self.output_label.config(text=result, foreground="black")  # Default colour for other results
+                self.output_label.config(text = "Generating.....", foreground = "black")
+                self.window.update()
+                result = self.__selected_model.run(user_text)
+                self._update_result(result)
 
-            #self.output_label.config(text=result)
-            print("Result from model: ", result)
+
         except Exception as err:
+            self.__is_running = False   # stop if something goes worng
             self.output_label.config(text=f"Something went wrong: {str(err)}")
             print(f"Error in run_model: {str(err)}")
 
