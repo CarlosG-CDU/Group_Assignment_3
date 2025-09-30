@@ -1,5 +1,5 @@
 import tkinter as tk
-from GUI import HugFaceGui
+from GUI_original import HugFaceGui
 
 def main():
     root = tk.Tk()
