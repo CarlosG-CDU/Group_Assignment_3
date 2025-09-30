@@ -10,7 +10,8 @@ from tkinter import ttk
 from tkinter import messagebox
 import AI_Stuff
 from base_classes import GuiBase, AiModelBase     #this improts the parent class from base_classes.py
-
+import threading
+#Ref- https://docs.python.org/3/library/threading.html
 
 class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both guibase
     def __init__(self, root):
@@ -82,25 +83,52 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
 
         ###made by button
         tk.Button(self.window, text = "Created by", command = self.creators).grid(row = 6, column = 0, padx = 5, pady = 5) 
+        
+        ###Progress bar
+        #Ref- https://www.pythontutorial.net/tkinter/tkinter-progressbar/
+        #Ref- https://docs.python.org/3/library/tkinter.ttk.html#tkinter.ttk.Progressbar
+        self.progress = ttk.Progressbar(self.window, mode="indeterminate", length=250)
+        self.progress.grid(row=7, column=0, padx=5, pady=5)
+        self.progress.grid_remove()
 
     def run_model(self):
         user_text = self.input_text.get("1.0", tk.END).strip()
         if not self.__selected_model:
             self.output_label.config(text="Please select a model from the dropdown menu")
             return
-        
+        if not user_text:
+            self.output_label.config(text="Please enter some text first")
+            return
+           
         choice = self.input_type.get()
-        print(f"User Entered: {user_text}")     #debug to remove used to be user_text
-        print(f"Selected model: {choice}") 
+        self.output_label.config(text=f"{choice} running... please wait")
 
-        try:
-            result = self.__selected_model.run(user_text)
-            self.output_label.config(text=result)
-            print("Result from model: ", result)
-        except Exception as err:
-            self.output_label.config(text=f"Something went wrong: {str(err)}")
-            print(f"Error in run_model: {str(err)}")
+        ###Show the progress bar
+        self.progress.grid()
+        self.progress.start(12) # speed of animation adjust if needed
 
+        ###Do the long work in the background thread
+        def _worker():
+            try:
+                result = self.__selected_model.run(user_text)
+                err = None
+            except Exception as e:
+                result, err = None, e
+        # return to UI thread to update widgets
+            self.window.after(0, lambda: self._finish_run(result, err))
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _finish_run(self, result, err):
+        self.progress.stop()
+        self.progress.grid_remove()
+
+        if err:
+            self.output_label.config(text=f"Something went wrong: {err}") 
+            print("Error in run_model:", err) 
+        else:
+            self.output_label.config(text=str(result))
+            print("Result from model:", result)     
 
     def show_model_info(self):      #display info about selected model
         self.selected_model = self.input_type.get() #show current selection
@@ -124,6 +152,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
     def show_oop_explinations(self):
         explinations = """Multiple Inheritance: HugFaceGui uses GuiBase for window setup
                           Encapsulation: is used by making self.__root and self.__selected model private with meathods get_model and set_model for safety
+                          Method Overriding: AiModelBase has a run () method that does nothing. SentimentModel overrides this run() to analyse text sentiment, while TextToImageModel overrides it to generate images. This shows how child classes replace the parent's method with their own specialised version
                           Polymorphism: AiModelBase has a basic run() method that does nothing. 
                     SentimentModel changes it to check if text is positive or negative using DistilBERT. 
                     TextToImageModel changes it to make pictures with Stable Diffusion, saving them as "output.png". 
