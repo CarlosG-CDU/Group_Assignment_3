@@ -107,4 +107,4 @@ class TextToImageModel(AiModelBase):
 
         image = pipe(input_text, num_inference_steps=25, height=256, width=256).images[0]
         image.save("output.png")
-        return "image saved as output.png"
+        return "image saved as output.png" 

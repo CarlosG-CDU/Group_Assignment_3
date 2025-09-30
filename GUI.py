@@ -79,7 +79,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         tk.Button(Button_frame, bg="green", text = "Run Model", command = self.run_model).grid(row = 2, column = 0, padx = 5, pady = 5, sticky='e') 
 
         ###Output text box
-        self.output_label = tk.Label(Button_frame, text = "Please select a model from the dropdown menu", font=("Verdana", 10), wraplength = 400)
+        self.output_label = tk.Label(self.window, text = "Please select a model from the dropdown menu", font=("Verdana", 10), wraplength = 400)
         self.output_label.grid(row = 3, column = 0, padx = 5, pady = 5, sticky='w')
 
         ###info and explinations button
@@ -118,56 +118,61 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         rbLabel = tk.Label(Button_frame, bg="lightblue", text="Please make a selection")
         rbLabel.grid(row=0, column=2)
 
+    def _update_result(self, result):
+            
+            self.__is_running = False  # Ensure spinner stops
+            #set text colour based on teh result of the sentiment model
+            if result == "Sentiment: POSITIVE":
+                self.output_label.config(text=result, foreground="green")       #happy print green
+            elif result == "Sentiment: NEGATIVE":
+                self.output_label.config(text=result, foreground="red")         #sad print red
+            else:
+                self.output_label.config(text=result, foreground="black")       # Default colour for other results
+            print("Result from model: ", result)
 
-    def update_selected_model(self, event=None):    #update the slected modle here
-        self.selected_model = self.input_type.get()
-        self.output_label.config(text=f"{self.selected_model}")
-        print(f"Selected model updated: {self.selected_model}")  # Debug to confirm selection
-
-
-    def run_model(self):        #get the users input from the text box
-        #self.output_label.config(text = "TODO model")
+    def run_model(self):
         user_text = self.input_text.get("1.0", tk.END).strip()
-        print("User entered: ", user_text)  #remove later used to verify the input text
-        self.selected_model = self.input_type.get()
-
-        if self.selected_model == "Selected Model":  #check if a model has been selected
-            self.output_label.config(text = "Please select a model from drop menu")
+        if not self.__selected_model:
+            self.output_label.config(text="Please select a model from the dropdown menu")
             return
         
-        print(f"Selected model: {self.selected_model}") #debug
+        choice = self.input_type.get()
+        print(f"User Entered: {user_text}")     #debug to remove used to be user_text
+        print(f"Selected model: {choice}") 
 
-        #self.output_label.config(text="Processing, please wait...")
-        # Reset the output label with model-specific processing message
-        if self.selected_model == "Sentiment Model":
-            self.output_label.config(text="Analyzing sentiment, please wait...")
-        elif self.selected_model == "Text to Image":
-            self.output_label.config(text="Generating image, please wait (up to 5 minutes)...")
-        self.window.update()
+        def run_model_in_thread():  #run in another thread to stop gui from mucking this up
+            try:
+                print("Text to image model execute")
+                result = self.__selected_model.run(user_text)
+                print("This is the result: ", result)
+                self.window.after(0, lambda: self._update_result(result))       #upadte the GUI form here
+            except Exception as err:
+                print(f"Error in run_model: {str(err)}")
+                self.window.after(0, lambda: self._update_result(f"Something went wrong: {str(err)}"))
+            finally:
+                self.__is_running = False  # Stop the spinner
 
-
-        print("Send data to AI_Stuff model")    #debug remove later
         try:
-            if self.selected_model == "Sentiment Model":     #call Sentiment Model function
-                result = AI_Stuff.analyse_sentiment(user_text)
-                print("Result from model = :", result)  #debug remoev later
-                self.output_label.config(text=f"sentiment: {result}")
-                
-            elif self.selected_model == "Text to Image":        #call text to image
-                #self.output_label.config(text = "please be patient. this can take up to 5 minutes")
-                result = AI_Stuff.text_to_image(user_text)
-                
-                self.output_label.config(text="Text to Image")
-                #self.output_label.config(text=f"savedTo: {result}")
-                self.output_label.config(text = f"Your Image saved as output.png")
-                
-            else:       #just incase we end up here unexpectedly
-                self.output_label.config(text = "Please select a model from drop menu")     # only will get here if no model selected
-                
-        except Exception as err:    #something is broken
-            self.output_label.config(text=f"Somethign is wrong: {str(err)}")
-            print(f"Error in run_model: {str(err)}")  # debug. show whats hanging the code
+            if choice == "Text to Image":
+                self.__is_running = True
+                self.output_label.config(text="Generating Image. Please be patient, this can take up to 5 minutes.") # Display the "Generating Image" message
+                self.window.update()  # Force GUI update to show the message
+                ##threading.Thread(target = self.__spin_progress, daemon = True).start()
+                #threading.Thread(target=run_model_in_thread, daemon=True).start()
+                #self.__spin_progress()  #run in main thread
+            else:
+                self.output_label.config(text = "Generating.....", foreground = "black")
+                self.window.update()
+                result = self.__selected_model.run(user_text)
+                self._update_result(result)
 
+
+        except Exception as err:
+            self.__is_running = False   # stop if something goes worng
+            self.output_label.config(text=f"Something went wrong: {str(err)}")
+            print(f"Error in run_model: {str(err)}")
+
+    
     def open_image(self):
         try:               # Check if image was saved
                 
@@ -201,6 +206,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
             Image.open("output.png").save(new_name)
 
 
+    
     def show_model_info(self):      #display info about selected model
         self.selected_model = self.input_type.get() #show current selection
         #self.output_label.config(text = "The sentiment model will check any sentence you input into the text box and give an opinion if its Positive or Negative")
@@ -218,7 +224,6 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         else:
             self.output_label.config(text="Unknown model selected")
             print("Unknown model selected")  # Debug
-    
 
     def show_oop_explinations(self):
         explinations = """
@@ -252,4 +257,3 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
     def creators(self):
         #self.output_label.config(text = "Made by Carlos Galli, Cody Old and Lauren Whitford S2 - 2025")
         messagebox.showinfo("Creators", "Made by Carlos Galli, Cody Old and Lauren Whitford S2 - 2025")
-        
