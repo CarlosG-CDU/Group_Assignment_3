@@ -11,7 +11,9 @@ from tkinter import messagebox
 import AI_Stuff
 from base_classes import GuiBase, AiModelBase         #this imports the parent class from base_classes.py
 from PIL import Image, ImageTk                        #this imports image module compatible with tkinter
-import os                              
+import os
+import threading
+#Ref- https://docs.python.org/3/library/threading.html                              
 
 
 class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both guibase
@@ -98,6 +100,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
 
         #create radio buttons
         r = tk.IntVar()  #define variable r
+        r.set(1) #set open image as the default
         #r.get()
 
         #radio_frame = tk.Frame(self._root)
@@ -118,35 +121,69 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         rbLabel = tk.Label(Button_frame, bg="lightblue", text="Please make a selection")
         rbLabel.grid(row=0, column=2)
 
+        ###Progress bar
+        #Ref- https://www.pythontutorial.net/tkinter/tkinter-progressbar/
+        #Ref- https://docs.python.org/3/library/tkinter.ttk.html#tkinter.ttk.Progressbar
+        self.progress = ttk.Progressbar(self.window, mode="indeterminate", length=250)
+        self.progress.grid(row=7, column=0, padx=5, pady=5)
+        self.progress.grid_remove()
+
     def run_model(self):
         user_text = self.input_text.get("1.0", tk.END).strip()
         if not self.__selected_model:
             self.output_label.config(text="Please select a model from the dropdown menu")
             return
-        
+        if not user_text:
+            self.output_label.config(text="Please enter some text first")
+            return
+           
         choice = self.input_type.get()
-        print(f"User Entered: {user_text}")     #debug to remove used to be user_text
-        print(f"Selected model: {choice}") 
+        self.output_label.config(text=f"{choice} running... please wait")
 
-        try:
-            if choice == "Text to Image":
-                self.output_label.config(text="Generating Image. Please be patient, this can take up to 5 minutes.") # Display the "Generating Image" message
-                self.window.update()  # Force GUI update to show the message
-            result = self.__selected_model.run(user_text)
-            #set text colour based on teh result of the sentiment model
+        ###Show the progress bar
+        self.progress.grid()
+        self.progress.start(12) # speed of animation adjust if needed
+
+        ###Do the long work in the background thread
+        def _worker():
+            try:
+                result = self.__selected_model.run(user_text)
+                err = None
+            except Exception as e:
+                result, err = None, e
+        # return to UI thread to update widgets
+            self.window.after(0, lambda: self._finish_run(choice, result, err))
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _finish_run(self, choice, result, err):
+        self.progress.stop()
+        self.progress.grid_remove()
+
+        if err:
+            self.output_label.config(text=f"Something went wrong: {err}", foreground="black") 
+            print("Error in run_model:", err) 
+        else:
             print("This is the result: ", result)
-            if result == "Sentiment: POSITIVE":
-                self.output_label.config(text = result, foreground = "green")       #happy print green
-            elif result == "Sentiment: NEGATIVE":
-                self.output_label.config(text=result, foreground="red")             #sad print red
-            else:
-                self.output_label.config(text=result, foreground="black")  # Default colour for other results
 
-            #self.output_label.config(text=result)
-            print("Result from model: ", result)
-        except Exception as err:
-            self.output_label.config(text=f"Something went wrong: {str(err)}")
-            print(f"Error in run_model: {str(err)}")
+            #time execution on GUI interface
+            secs = getattr(self.__selected_model, "_last_run_seconds", None)
+            if isinstance(secs, (int, float)):
+                result = f"{result}  (took {secs:.2f}s)"
+
+            if choice == "Sentiment Model":
+                if "POSITIVE" in result:
+                    self.output_label.config(text = result, foreground = "green")       #happy print green
+                elif "NEGATIVE" in result:
+                    self.output_label.config(text=result, foreground="red")             #sad print red
+                else:
+                    self.output_label.config(text=result, foreground="black")  # Default colour for other results
+
+            elif choice == "Text to Image":
+                #reset label for text to image completion
+                self.output_label.config(text=result, foreground="black")
+
+            print("Result from model:", result)
 
     
     def open_image(self):
@@ -209,6 +246,12 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
 
     * Encapsulation: 
     is used by making self.__root and self.__selected model private with meathods get_model and set_model for safety
+
+    * Method Overriding:
+    - AIModelBase defines a run() method that does nothing.
+    - SentimentModel overrides run() to analyse text sentiment.
+    - TextToImageModel overrides run() to generate images.
+    - This shows how child classes replace the parent's method with their own specialised version.
 
     * Polymorphism: 
     AiModelBase has a basic run() method that does nothing. 

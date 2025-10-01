@@ -57,6 +57,11 @@ def timeit(func):
             return func(*args, **kwargs)
         finally:
             dur = time.perf_counter() - start
+            if args:
+                try:
+                    setattr(args[0], "_last_run_seconds", dur)
+                except Exception:
+                    pass
             msg = f"TIME: {func.__name__} took {dur:.2f} seconds"
             print(msg, flush=True) #force it to print
             with open("debug.log", "a", encoding="utf-8") as f:
