@@ -1,3 +1,13 @@
+#*****************
+#   main page.
+#   main.py
+#*****************
+
+
+#######
+#MUST RUN THE PROG FROM THIS PAGE
+#######
+
 import tkinter as tk
 from GUI import HugFaceGui
 

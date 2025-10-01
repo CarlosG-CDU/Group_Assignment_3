@@ -100,7 +100,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
 
         #create radio buttons
         r = tk.IntVar()  #define variable r
-        r.set(1) #set open image as the default
+        r.set(2) #set save image as the default
         #r.get()
 
         #radio_frame = tk.Frame(self._root)
@@ -262,10 +262,6 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
     * Multiple Decorators: 
     - In AI_Stuff.py, each run() method is decorated with @log_call and @timeit together. 
     - This means when run() is called, first it is logged (with a spinner), then the execution time is measured, before finally running the real function.
-
-    * Radio Buttons:
-    - In GUI.py, Radio Buttons provide the user with a selection of two options: Open the image, or save the image.
-    - Only one Radio Button can be used at any one time, but the image will remain open on the screen for the user.
                                                    
     """
                
