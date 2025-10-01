@@ -118,18 +118,6 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         rbLabel = tk.Label(Button_frame, bg="lightblue", text="Please make a selection")
         rbLabel.grid(row=0, column=2)
 
-    def _update_result(self, result):
-            
-            self.__is_running = False  # Ensure spinner stops
-            #set text colour based on teh result of the sentiment model
-            if result == "Sentiment: POSITIVE":
-                self.output_label.config(text=result, foreground="green")       #happy print green
-            elif result == "Sentiment: NEGATIVE":
-                self.output_label.config(text=result, foreground="red")         #sad print red
-            else:
-                self.output_label.config(text=result, foreground="black")       # Default colour for other results
-            print("Result from model: ", result)
-
     def run_model(self):
         user_text = self.input_text.get("1.0", tk.END).strip()
         if not self.__selected_model:
@@ -140,35 +128,23 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         print(f"User Entered: {user_text}")     #debug to remove used to be user_text
         print(f"Selected model: {choice}") 
 
-        def run_model_in_thread():  #run in another thread to stop gui from mucking this up
-            try:
-                print("Text to image model execute")
-                result = self.__selected_model.run(user_text)
-                print("This is the result: ", result)
-                self.window.after(0, lambda: self._update_result(result))       #upadte the GUI form here
-            except Exception as err:
-                print(f"Error in run_model: {str(err)}")
-                self.window.after(0, lambda: self._update_result(f"Something went wrong: {str(err)}"))
-            finally:
-                self.__is_running = False  # Stop the spinner
-
         try:
             if choice == "Text to Image":
-                self.__is_running = True
                 self.output_label.config(text="Generating Image. Please be patient, this can take up to 5 minutes.") # Display the "Generating Image" message
                 self.window.update()  # Force GUI update to show the message
-                ##threading.Thread(target = self.__spin_progress, daemon = True).start()
-                #threading.Thread(target=run_model_in_thread, daemon=True).start()
-                #self.__spin_progress()  #run in main thread
+            result = self.__selected_model.run(user_text)
+            #set text colour based on teh result of the sentiment model
+            print("This is the result: ", result)
+            if result == "Sentiment: POSITIVE":
+                self.output_label.config(text = result, foreground = "green")       #happy print green
+            elif result == "Sentiment: NEGATIVE":
+                self.output_label.config(text=result, foreground="red")             #sad print red
             else:
-                self.output_label.config(text = "Generating.....", foreground = "black")
-                self.window.update()
-                result = self.__selected_model.run(user_text)
-                self._update_result(result)
+                self.output_label.config(text=result, foreground="black")  # Default colour for other results
 
-
+            #self.output_label.config(text=result)
+            print("Result from model: ", result)
         except Exception as err:
-            self.__is_running = False   # stop if something goes worng
             self.output_label.config(text=f"Something went wrong: {str(err)}")
             print(f"Error in run_model: {str(err)}")
 
@@ -224,6 +200,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         else:
             self.output_label.config(text="Unknown model selected")
             print("Unknown model selected")  # Debug
+            
 
     def show_oop_explinations(self):
         explinations = """
