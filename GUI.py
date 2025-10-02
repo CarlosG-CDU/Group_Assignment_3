@@ -61,7 +61,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
 #        label = tk.Label(self._root, text = "Welcome to Assignment 3")
 #        label.pack(padx = 10, pady = 10)
 
-    def setup_layout(self):   
+    def setup_layout(self):                 
         
         Button_frame = tk.LabelFrame(self.window, bg="pink", width=1200, height=1000)    #use to call all buttons into frame for neat GUI display
         Button_frame.grid(row=1, column=0, padx=10, pady=10)
@@ -85,7 +85,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         self.output_label.grid(row = 3, column = 0, padx = 5, pady = 5, sticky='w')
 
         ###info and explinations button
-        tk.Button(Button_frame, text = "Model Info", command = self.show_model_info).grid(row = 4, column = 0, padx = 5, pady = 5, sticky='w') 
+        tk.Button(Button_frame, text = "Model Info", command = self.show_model_info).grid(row = 2, column = 0, padx = 5, pady = 5, sticky='w') 
         tk.Button(Button_frame, text = "OOP Explinations", command = self.show_oop_explinations).grid(row = 5, column = 0, padx = 5, pady =5, sticky='w')
 
         ###made by button
@@ -115,11 +115,11 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
         rb = tk.Radiobutton(Button_frame, text="Open Image", variable=r, value=1, command=lambda: click_rb(r.get()))   #.pack(row=3, column=2)  #radio button #command=lambda: click_rb(r.get())
         rb2 = tk.Radiobutton(Button_frame, text="Save Image", variable=r, value=2, command=lambda: click_rb(r.get()))    #.pack(row=4, column=2)
 
-        rb.grid(row=1, column=2)
+        rb.grid(row=3, column=2)
         rb2.grid(row=2, column=2)          
         
-        rbLabel = tk.Label(Button_frame, bg="lightblue", text="Please make a selection")
-        rbLabel.grid(row=0, column=2)
+        rbLabel = tk.Label(Button_frame, bg="lightblue", text="Select View or Save image")
+        rbLabel.grid(row=1, column=2)
 
         ###Progress bar
         #Ref- https://www.pythontutorial.net/tkinter/tkinter-progressbar/
@@ -169,7 +169,7 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
             #time execution on GUI interface
             secs = getattr(self.__selected_model, "_last_run_seconds", None)
             if isinstance(secs, (int, float)):
-                result = f"{result}  (took {secs:.2f}s)"
+                result = f"{result}  (time taken {secs:.2f}s)"
 
             if choice == "Sentiment Model":
                 if "POSITIVE" in result:
