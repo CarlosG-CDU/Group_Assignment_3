@@ -227,11 +227,11 @@ class HugFaceGui(GuiBase, AiModelBase):   #HugFaceGui now inherits from both gui
             self.output_label.config(text="Please select a model from the dropdown menu")
         
         elif self.selected_model == "Sentiment Model":
-            self.output_label.config(text="The sentiment model analyses the input text and determines if it has a positive or negative sentiment.")
+            self.output_label.config(text="The sentiment model analyses the input text and determines if it has a positive or negative sentiment.", foreground = "black")
             print("Sentiment Model selected")  # Debug
         
         elif self.selected_model == "Text to Image":
-            self.output_label.config(text="This model will provide a picture from the text provided by the end user. The more info that is provided the better the result. You can over do it though. An example instruction A red lady bug on a flower")
+            self.output_label.config(text="This model will provide a picture from the text provided by the end user. The more info that is provided the better the result. You can over do it though. An example instruction A red lady bug on a flower", foreground = "black")
             print("Text to Image")  # Debug
         
         else:

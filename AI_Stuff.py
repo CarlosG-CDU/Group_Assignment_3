@@ -88,7 +88,7 @@ class SentimentModel(AiModelBase):
 
 
 ###**************************************
-#  Text to Picture Model. Modified for our needs
+#  Text to Picture Model. Modified for our needs. https://huggingface.co/docs/diffusers/en/using-diffusers/loading
 #***********************
 
 #import torch
